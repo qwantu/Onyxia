@@ -1,8 +1,10 @@
 package com.qwantu.api.security;
 
+import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
@@ -15,6 +17,8 @@ import java.io.IOException;
 public class AuthorizationFilter implements Filter {
     Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);
 
+    @Value("${security.jwt.secret}")
+    private String JWT_SECRET;
 
     @Autowired
     CustomAuthorizationFilterConfiguration customAuthorizationFilterConfiguration;
@@ -31,6 +35,8 @@ public class AuthorizationFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) servletResponse;
 
         String header_authorization = req.getHeader("Authorization");
+        logger.info("REQUEST URL {}",req.getRequestURL());
+
 
         if(header_authorization == null) {
             res.sendError(HttpServletResponse.SC_FORBIDDEN, customAuthorizationFilterConfiguration.CUSTOM_ERROR_FORBIDDEN);
@@ -44,6 +50,10 @@ public class AuthorizationFilter implements Filter {
                     //todo => check if hes well formated (same algorithm + secret) => catch try return error
                     //todo => check expiration date => else refresh token or asking for login ?
                     //todo => check role and if user is allow on the path
+
+
+                    Jwts.parser().setSigningKey("mykey").parseClaimsJws(resultSplit[1]);
+
                     filterChain.doFilter(servletRequest, servletResponse);
                 }
 
