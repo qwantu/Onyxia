@@ -6,6 +6,9 @@ zuul:
     auth-service:
       path: /auth-service/**
       serviceId: auth-service
+    user-service:
+      path: /user-service/**
+      serviceId: user-service
 
 
 eureka:
